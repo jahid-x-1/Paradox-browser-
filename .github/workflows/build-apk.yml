@@ -89,7 +89,26 @@ jobs:
 
       - name: Build debug APK
         working-directory: ${{ matrix.project }}
-        run: bash -c 'echo "sdk.dir=${ANDROID_HOME}" > local.properties && gradle assembleDebug --no-daemon --stacktrace'
+        run: |
+          set +e
+          echo "sdk.dir=${ANDROID_HOME}" > local.properties
+          gradle assembleDebug --no-daemon --stacktrace > build.log 2>&1
+          STATUS=$?
+          if [ $STATUS -ne 0 ]; then
+            echo "=== BUILD FAILED (exit $STATUS) ==="
+            # Surface the useful lines as annotations, which the API can read back.
+            {
+              grep -nE "^(e: |w: )|error:|FAILURE:|What went wrong|Caused by|Execution failed|AAPT|Unresolved reference|e: file://" build.log \
+                | head -n 80
+              echo "--- last 40 lines ---"
+              tail -n 40 build.log
+            } | sed 's/%/%25/g; s/\r/ /g' | while IFS= read -r line; do
+              echo "::error title=build::$line"
+            done
+          fi
+          echo "=== tail of build.log ==="
+          tail -n 25 build.log
+          exit $STATUS
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
