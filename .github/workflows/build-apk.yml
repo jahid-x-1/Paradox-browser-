@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     name: Build ${{ matrix.label }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -35,21 +35,52 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install SDK platform and build tools
+      - name: Locate the preinstalled Android SDK
         run: |
-          yes | sdkmanager --licenses > /dev/null 2>&1 || true
-          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+          set -euo pipefail
+          SDK="${ANDROID_HOME:-${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}}"
+          if [ ! -d "$SDK" ]; then
+            echo "::error::Android SDK not found at $SDK"
+            exit 1
+          fi
+          echo "SDK dir: $SDK"
+          ls "$SDK"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          if [ -d "$SDK/cmdline-tools/latest/bin" ]; then
+            echo "$SDK/cmdline-tools/latest/bin" >> "$GITHUB_PATH"
+          fi
+          if [ -d "$SDK/platform-tools" ]; then
+            echo "$SDK/platform-tools" >> "$GITHUB_PATH"
+          fi
+
+      - name: Install platform 34 and build tools
+        run: |
+          set -uo pipefail
+          SDK="${ANDROID_HOME}"
+          SDKMGR="$(command -v sdkmanager || true)"
+          if [ -z "$SDKMGR" ] && [ -x "$SDK/cmdline-tools/latest/bin/sdkmanager" ]; then
+            SDKMGR="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          fi
+          if [ -z "$SDKMGR" ]; then
+            echo "sdkmanager not found — relying on what the runner image ships"
+            ls "$SDK/platforms" || true
+            exit 0
+          fi
+          yes | "$SDKMGR" --licenses > /dev/null 2>&1 || true
+          "$SDKMGR" "platforms;android-34" "build-tools;34.0.0" || true
+          ls "$SDK/platforms"
+
+      - name: Point Gradle at the SDK
+        run: echo "sdk.dir=${ANDROID_HOME}" > local.properties
 
       - name: Set up Gradle 8.2.1
         uses: gradle/actions/setup-gradle@v4
@@ -58,7 +89,7 @@ jobs:
 
       - name: Build debug APK
         working-directory: ${{ matrix.project }}
-        run: gradle assembleDebug --no-daemon --stacktrace
+        run: bash -c 'echo "sdk.dir=${ANDROID_HOME}" > local.properties && gradle assembleDebug --no-daemon --stacktrace'
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
@@ -71,12 +102,8 @@ jobs:
   publish:
     name: Publish APKs to release
     needs: build
-    if: github.event_name != 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Download all APK artifacts
         uses: actions/download-artifact@v4
         with:
@@ -84,6 +111,7 @@ jobs:
 
       - name: Rename APKs
         run: |
+          set -euo pipefail
           mkdir -p out
           cp apks/paradox-gaming-tools/app-debug.apk out/Paradox-Gaming-Tools-1.0.0-debug.apk
           cp apks/paradox-browser/app-debug.apk out/Paradox-Browser-1.0.0-debug.apk
@@ -100,9 +128,9 @@ jobs:
             * **Paradox-Gaming-Tools-1.0.0-debug.apk** — real lag reduction (Linear JAH-5)
             * **Paradox-Browser-1.0.0-debug.apk** — hardened WebView browser
 
-            Debug builds are signed with the standard debug keystore, so Android may warn
-            that the app is from an unknown source. Enable "Install unknown apps" for your
-            file manager or browser to install.
+            Debug builds are signed with the standard debug keystore, so Android will warn
+            that the app comes from an unknown source. Allow "Install unknown apps" for your
+            file manager or browser to install it.
           files: out/*.apk
           prerelease: true
           make_latest: false
