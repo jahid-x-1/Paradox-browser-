@@ -1,11 +1,33 @@
 # Paradox — workspace of Jahid Hasan (paradox)
 
+[![Build APK](https://github.com/jahid-x-1/Paradox-browser-/actions/workflows/build-apk.yml/badge.svg)](https://github.com/jahid-x-1/Paradox-browser-/actions/workflows/build-apk.yml)
+
+## 📲 Download the APKs
+
+Every push builds both apps on GitHub Actions and attaches the debug APKs to the
+**`apk-latest`** release:
+
+> **https://github.com/jahid-x-1/Paradox-browser-/releases/tag/apk-latest**
+
+| File | App | Size |
+|---|---|---|
+| `Paradox-Gaming-Tools-1.0.0-debug.apk` | Paradox Gaming Tools (`com.paradox.gamingtools.debug`, minSdk 26) | ~5.7 MB |
+| `Paradox-Browser-1.0.0-debug.apk` | Paradox Browser (`com.paradox.browser.debug`, minSdk 21) | ~6.0 MB |
+| `SHA256SUMS.txt` | Checksums for both | — |
+
+Both APKs are signed with the standard Android debug certificate (V2 scheme), so the
+phone warns about an unknown source. Allow **Install unknown apps** for your browser or
+file manager, then tap the downloaded file.
+
+CI status: [all runs](https://github.com/jahid-x-1/Paradox-browser-/actions) ·
+Workflow: [`.github/workflows/build-apk.yml`](.github/workflows/build-apk.yml)
+
 This repository holds two Android projects.
 
 | Folder | What it is | State |
 |---|---|---|
-| [`gaming-tools/`](gaming-tools/) | **Paradox Gaming Tools** — real on-device lag reduction (Linear `JAH-5`) | Complete Gradle project — `gradle assembleDebug` on a machine with the Android SDK |
-| [`paradox-browser/`](paradox-browser/) | Paradox Browser — hardened WebView browser (Via REA fixes) | **Fixed** — 19 build/runtime defects resolved, every tool implemented |
+| [`gaming-tools/`](gaming-tools/) | **Paradox Gaming Tools** — real on-device lag reduction (Linear `JAH-5`) | Builds green in CI — debug APK published |
+| [`paradox-browser/`](paradox-browser/) | Paradox Browser — hardened WebView browser (Via REA fixes) | **Fixed** — 19 defects resolved, builds green in CI, debug APK published |
 | `paradox-browser.zip` | Original upload of the browser project | Reference copy, untouched |
 
 ---

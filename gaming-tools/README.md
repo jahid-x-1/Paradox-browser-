@@ -1,5 +1,8 @@
 # Paradox Gaming Tools 1.0.0
 
+> **Debug APK:** built automatically on every push —
+> https://github.com/jahid-x-1/Paradox-browser-/releases/tag/apk-latest
+
 **Real, on-device lag reduction for Android — no root, no internet, no ads.**
 
 Built by Jahid Hasan (paradox) for Linear issue `JAH-5`.

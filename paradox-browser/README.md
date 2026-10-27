@@ -1,5 +1,8 @@
 # Paradox Browser 1.0.0
 
+> **Debug APK:** built automatically on every push —
+> https://github.com/jahid-x-1/Paradox-browser-/releases/tag/apk-latest
+
 **Fast, Private & Secure — built from the Via Browser REA with every found bug fixed.**
 
 By Jahid Hasan (paradox). Package `com.paradox.browser`.
