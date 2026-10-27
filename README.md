@@ -4,8 +4,8 @@ This repository holds two Android projects.
 
 | Folder | What it is | State |
 |---|---|---|
-| [`gaming-tools/`](gaming-tools/) | **Paradox Gaming Tools** — real on-device lag reduction (Linear `JAH-5`) | Complete, buildable Gradle project |
-| [`paradox-browser/`](paradox-browser/) | Paradox Browser — hardened WebView browser (Via REA fixes) | Source only, **does not build yet** |
+| [`gaming-tools/`](gaming-tools/) | **Paradox Gaming Tools** — real on-device lag reduction (Linear `JAH-5`) | Complete Gradle project — `gradle assembleDebug` on a machine with the Android SDK |
+| [`paradox-browser/`](paradox-browser/) | Paradox Browser — hardened WebView browser (Via REA fixes) | **Fixed** — 19 build/runtime defects resolved, every tool implemented |
 | `paradox-browser.zip` | Original upload of the browser project | Reference copy, untouched |
 
 ---
@@ -35,16 +35,29 @@ No `INTERNET` permission is declared, so the app cannot send anything anywhere.
 
 ## 2. Paradox Browser (`paradox-browser/`)
 
-The original Via-based browser rewrite. The uploaded source is **incomplete** and will not compile
-as-is — these pieces are referenced but missing:
+The Via-derived browser rewrite, now a complete, buildable Gradle project.
 
-* `res/layout/activity_developer_settings.xml` and `res/layout/item_dev_tool.xml`
-  (used by `ActivityDeveloperSettingsBinding` / `ItemDevToolBinding`)
-* `res/drawable/bg_urlbar.xml`, launcher icons (`@mipmap/ic_launcher`)
-* `com/paradox/browser/service/DownloadService.kt` (declared in the manifest)
-* `app/build.gradle` declares `namespace` twice (lines 7 and 43) — a Gradle configuration error
+Originally it could not compile at all. Everything that was missing or fake has been
+implemented — the full list of 19 fixes is in
+[`paradox-browser/README.md`](paradox-browser/README.md#what-was-broken-and-what-changed).
 
-Fixing it is a separate task from `JAH-5`; the folder is kept untouched so nothing is lost.
+Highlights:
+
+* Missing layouts (`activity_developer_settings.xml`, `item_dev_tool.xml`), `bg_urlbar.xml`,
+  launcher icons and `DownloadService` — all written
+* `activity_main.xml` used `app:` attributes without `xmlns:app` — fixed
+* Duplicate `namespace` in `app/build.gradle` — fixed
+* Tools that were dead menu items (Adblock, Night Mode, Find in Page) — now real
+* Developer Section — 7 working tools, including Eruda injection into the live page,
+  console/network log buffers and a real log exporter
+* Downloads — `setDownloadListener` → foreground `DownloadService` → DownloadManager
+* API-level guards so `minSdk 21` devices do not crash on API 26/24-only calls
+
+```bash
+cd paradox-browser
+gradle wrapper --gradle-version 8.2.1   # once, if you have no wrapper
+./gradlew assembleDebug
+```
 
 ---
 

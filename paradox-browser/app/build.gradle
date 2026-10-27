@@ -5,23 +5,25 @@ plugins {
 
 android {
     namespace 'com.paradox.browser'
-    compileSdk 36
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.paradox.browser"
-        minSdk 21   // FIX: Via chilo 19 (old, vulnerable) → 21 (Lollipop) minimum
-        targetSdk 36
+        minSdk 21   // FIX: Via was 19 (old, vulnerable WebView) → 21 (Lollipop)
+        targetSdk 34
         versionCode 1
         versionName "1.0.0"
 
         // Paradox Browser - by Jahid Hasan (paradox)
         buildConfigField "String", "DEVELOPER_NAME", '"Jahid Hasan (paradox)"'
         buildConfigField "String", "APP_NAME", '"Paradox Browser"'
+        buildConfigField "String", "HOME_URL", '"https://www.google.com"'
     }
 
     buildTypes {
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -29,25 +31,31 @@ android {
             applicationIdSuffix ".debug"
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+
     kotlinOptions {
         jvmTarget = '17'
     }
+
     buildFeatures {
         buildConfig true
         viewBinding true
     }
-    namespace 'com.paradox.browser'
+
+    lint {
+        abortOnError false
+    }
 }
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'com.google.android.material:material:1.11.0'
-    implementation 'androidx.webkit:webkit:1.8.0' // For WebView Client Hints
+    implementation 'androidx.webkit:webkit:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
 }

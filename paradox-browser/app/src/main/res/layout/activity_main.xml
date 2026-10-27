@@ -1,66 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/paradox_dark">
+    android:background="@color/paradox_dark"
+    android:orientation="vertical">
 
-    <!-- Toolbar -->
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/black"
-        app:title="Paradox"
-        app:subtitle="by Jahid Hasan" />
+        app:subtitle="@string/developer_name"
+        app:title="@string/app_name"
+        app:titleTextColor="@color/paradox_text"
+        app:subtitleTextColor="@color/paradox_text_dim" />
 
-    <!-- Address Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/paradox_surface"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="#1A1C1E">
+        android:paddingStart="8dp"
+        android:paddingTop="6dp"
+        android:paddingEnd="4dp"
+        android:paddingBottom="6dp">
 
         <EditText
             android:id="@+id/urlBar"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:hint="@string/search_hint"
+            android:layout_weight="1"
             android:background="@drawable/bg_urlbar"
-            android:padding="10dp"
-            android:singleLine="true" />
+            android:hint="@string/search_hint"
+            android:imeOptions="actionGo"
+            android:importantForAutofill="no"
+            android:inputType="textUri"
+            android:maxLines="1"
+            android:paddingStart="16dp"
+            android:paddingTop="10dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="10dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="@color/paradox_text"
+            android:textColorHint="@color/paradox_text_dim"
+            android:textSize="14sp"
+            tools:ignore="Autofill" />
 
         <TextView
             android:id="@+id/btnTools"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/menu_tools"
+            android:gravity="center"
             android:text="☰"
-            android:padding="12dp"
-            android:textSize="18sp"
-            android:textColor="#fff" />
+            android:textColor="@color/paradox_text"
+            android:textSize="20sp" />
     </LinearLayout>
 
-    <!-- WebView — FIXED SECURE CONFIG -->
+    <ProgressBar
+        android:id="@+id/webProgress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:max="100"
+        android:progress="0"
+        android:progressTint="@color/paradox_blue"
+        android:visibility="gone" />
+
     <WebView
         android:id="@+id/webView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:background="@color/paradox_dark" />
 
-    <!-- Bottom Tools -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@color/paradox_dark"
         android:orientation="horizontal"
-        android:background="#111314"
-        android:padding="6dp">
+        android:padding="4dp">
 
-        <TextView android:id="@+id/toolBack" android:text="◀" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="#fff"/>
-        <TextView android:id="@+id/toolForward" android:text="▶" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="#fff"/>
-        <TextView android:id="@+id/toolDev" android:text="⚙ Developer" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="@color/paradox_blue" android:background="?attr/selectableItemBackground"/>
-        <TextView android:id="@+id/toolTabs" android:text="⬔" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="#fff"/>
+        <TextView
+            android:id="@+id/toolBack"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/back"
+            android:gravity="center"
+            android:text="◀"
+            android:textColor="@color/paradox_text"
+            android:textSize="16sp" />
 
+        <TextView
+            android:id="@+id/toolForward"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/forward"
+            android:gravity="center"
+            android:text="▶"
+            android:textColor="@color/paradox_text"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/toolHome"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/home"
+            android:gravity="center"
+            android:text="⌂"
+            android:textColor="@color/paradox_text"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/toolDev"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="2"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/menu_developer"
+            android:gravity="center"
+            android:text="⚙ Developer"
+            android:textColor="@color/paradox_blue"
+            android:textSize="13sp"
+            android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

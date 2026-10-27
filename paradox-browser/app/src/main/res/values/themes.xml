@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.Paradox" parent="Theme.Material3.DayNight">
-        <item name="colorPrimary">#1A1C1E</item>
-        <item name="colorSecondary">#3A7BFF</item>
-        <item name="android:statusBarColor">@color/black</item>
+    <style name="Theme.Paradox" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/paradox_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/paradox_blue</item>
+        <item name="colorSurface">@color/paradox_surface</item>
+        <item name="android:colorBackground">@color/paradox_dark</item>
+        <item name="android:textColorPrimary">@color/paradox_text</item>
+        <item name="android:textColorSecondary">@color/paradox_text_dim</item>
+        <item name="android:statusBarColor">@color/paradox_dark</item>
+        <item name="android:navigationBarColor">@color/paradox_dark</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>
