@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="paradox_bg">#0B0E11</color>
+    <color name="paradox_card">#151B22</color>
+    <color name="paradox_card_alt">#10161C</color>
+    <color name="paradox_line">#1E252E</color>
+    <color name="paradox_blue">#4C8DFF</color>
+    <color name="paradox_green">#22C55E</color>
+    <color name="paradox_amber">#F59E0B</color>
+    <color name="paradox_red">#EF4444</color>
+    <color name="paradox_purple">#A855F7</color>
+    <color name="paradox_text">#E8EDF2</color>
+    <color name="paradox_text_dim">#8A97A6</color>
+    <color name="ic_launcher_bg">#0B0E11</color>
+</resources>

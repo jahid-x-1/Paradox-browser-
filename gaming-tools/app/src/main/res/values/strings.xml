@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paradox Gaming Tools — by Jahid Hasan (paradox) -->
+    <string name="app_name">Paradox Gaming Tools</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">PARADOX</string>
+    <string name="dashboard_subtitle">GAMING TOOLS</string>
+    <string name="dashboard_tagline">Real device tuning · No root · No internet · No ads</string>
+    <string name="label_memory">MEMORY</string>
+    <string name="label_cpu">CPU</string>
+    <string name="label_temp">THERMAL</string>
+    <string name="label_storage">STORAGE</string>
+    <string name="label_ram">RAM</string>
+    <string name="subtitle_load">load</string>
+    <string name="subtitle_free">free</string>
+    <string name="value_dash">—</string>
+    <string name="ram_of_total">of %1$s total</string>
+    <string name="ram_status_ok">Memory healthy — game on</string>
+    <string name="ram_status_low">Memory pressure — boost recommended</string>
+    <string name="boost_now">BOOST NOW</string>
+    <string name="boosting">BOOSTING…</string>
+    <string name="boost_hint">Trims background apps and drops caches</string>
+    <string name="stats_none">No boost yet — run one to see your stats</string>
+    <string name="stats_line">%1$d boosts · %2$s freed all-time · last %3$s</string>
+
+    <!-- Tools -->
+    <string name="tools_section">TOOLS</string>
+    <string name="tool_lag_title">Lag Lab</string>
+    <string name="tool_lag_desc">Measure real FPS and jank</string>
+    <string name="tool_games_title">Game Library</string>
+    <string name="tool_games_desc">Boost, then launch a game</string>
+    <string name="tool_cleaner_title">Storage Cleaner</string>
+    <string name="tool_cleaner_desc">Caches and app storage</string>
+    <string name="tool_settings_title">Settings</string>
+    <string name="tool_settings_desc">Boost behaviour and about</string>
+    <string name="footer_note">Paradox Gaming Tools 1.0.0 · by Jahid Hasan</string>
+
+    <!-- Boost result -->
+    <string name="boost_done_title">Boost complete</string>
+    <string name="boost_done_body">Freed %1$s of RAM\n\n• %2$d background apps trimmed\n• %3$s cache cleared\n• Do Not Disturb: %4$s\n• Finished in %5$d ms</string>
+    <string name="option_yes">Yes</string>
+    <string name="option_no">No</string>
+    <string name="action_ok">OK</string>
+
+    <!-- Lag Lab -->
+    <string name="lag_title">LAG LAB</string>
+    <string name="lag_desc">A 15 second render stress test. Frame times are read from the Android frame clock, so the numbers are real measurements of this device right now.</string>
+    <string name="lag_live">LIVE FPS</string>
+    <string name="lag_avg">AVG FPS</string>
+    <string name="lag_worst">WORST</string>
+    <string name="lag_jank">JANK</string>
+    <string name="lag_load_label">Render load: %1$d objects</string>
+    <string name="lag_target">Target %1$s Hz</string>
+    <string name="lag_start">START 15s TEST</string>
+    <string name="lag_stop">STOP</string>
+    <string name="lag_verdict_idle">Press start to measure</string>
+    <string name="lag_verdict_running">Measuring…</string>
+    <string name="lag_verdict_smooth">SMOOTH — this device handles the load</string>
+    <string name="lag_verdict_ok">PLAYABLE — some frames dropped</string>
+    <string name="lag_verdict_lag">LAGGING — close apps or lower the load</string>
+    <string name="lag_running_detail">Keep the screen awake during the test</string>
+    <string name="lag_detail">1%% low · %1$s FPS\n%2$d frames · score %3$d/100</string>
+    <string name="ms_value">%1$s ms</string>
+    <string name="percent_value">%1$d%%</string>
+
+    <!-- Game library -->
+    <string name="games_title">GAME LIBRARY</string>
+    <string name="games_search_hint">Search apps</string>
+    <string name="games_empty">No apps matched your search</string>
+    <string name="games_boosting">Boosting first…</string>
+    <string name="games_boosting_desc">Trimming background apps so the game starts clean.</string>
+    <string name="games_launch_failed">Could not launch that app</string>
+    <string name="toast_freed">Freed %1$s of RAM</string>
+
+    <!-- Cleaner -->
+    <string name="cleaner_title">STORAGE</string>
+    <string name="cleaner_own_cache">Paradox cache</string>
+    <string name="cleaner_own_cache_desc">Temporary files created by this app. Safe to delete any time.</string>
+    <string name="cleaner_clean">CLEAN</string>
+    <string name="toast_cleaned">Cleared %1$s</string>
+    <string name="cleaner_usage_title">App cache (system stats)</string>
+    <string name="cleaner_usage_desc">Android only exposes other apps cache sizes after you grant Usage access. Paradox never uploads this data — it has no internet permission at all.</string>
+    <string name="cleaner_grant">GRANT ACCESS</string>
+    <string name="cleaner_usage_ok">Usage access granted</string>
+    <string name="cleaner_usage_missing">Usage access not granted</string>
+    <string name="cleaner_scanning">Reading storage statistics…</string>
+    <string name="cleaner_empty">Grant usage access to see per-app cache sizes</string>
+    <string name="cleaner_found">%1$d apps · tap Manage to open system App info</string>
+    <string name="cache_row">%1$s cache · %2$s data</string>
+    <string name="cleaner_manage">Manage</string>
+
+    <!-- Settings -->
+    <string name="settings_title">SETTINGS</string>
+    <string name="pref_kill">Trim background apps on boost</string>
+    <string name="pref_kill_desc">Asks Android to reclaim memory from other apps. The system may refuse for protected apps.</string>
+    <string name="pref_dnd">Enable Do Not Disturb during boost</string>
+    <string name="pref_dnd_desc">Heads-up notifications cause frame drops in full screen games.</string>
+    <string name="pref_boost_game">Boost before launching a game</string>
+    <string name="pref_boost_game_desc">Clears memory right before the game starts.</string>
+    <string name="dnd_grant">GRANT DND ACCESS</string>
+    <string name="dnd_granted">DND access granted</string>
+    <string name="stats_title">YOUR STATS</string>
+    <string name="stats_reset">RESET STATS</string>
+    <string name="stats_reset_done">Stats reset</string>
+    <string name="about_title">ABOUT</string>
+    <string name="about_body">Paradox Gaming Tools 1.0.0\nby Jahid Hasan\n\nEverything runs on this device. The app has no INTERNET permission, no ads and no analytics.\n\nHonest limits: Android does not allow a normal app to force-kill other apps or change CPU and GPU clocks. A boost here means trimming background processes, dropping caches and muting interruptions. Real overclocking needs root.</string>
+    <string name="adb_title">EXTRA: SMOOTHER ANIMATIONS</string>
+    <string name="adb_body">With USB debugging on, run this once from a PC to cut transition animations system wide:\n\nadb shell settings put global window_animation_scale 0\nadb shell settings put global transition_animation_scale 0\nadb shell settings put global animator_duration_scale 0</string>
+    <string name="back">Back</string>
+</resources>

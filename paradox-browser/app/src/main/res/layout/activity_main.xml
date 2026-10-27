@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/paradox_dark">
+
+    <!-- Toolbar -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/black"
+        app:title="Paradox"
+        app:subtitle="by Jahid Hasan" />
+
+    <!-- Address Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:background="#1A1C1E">
+
+        <EditText
+            android:id="@+id/urlBar"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:hint="@string/search_hint"
+            android:background="@drawable/bg_urlbar"
+            android:padding="10dp"
+            android:singleLine="true" />
+
+        <TextView
+            android:id="@+id/btnTools"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="☰"
+            android:padding="12dp"
+            android:textSize="18sp"
+            android:textColor="#fff" />
+    </LinearLayout>
+
+    <!-- WebView — FIXED SECURE CONFIG -->
+    <WebView
+        android:id="@+id/webView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Bottom Tools -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="#111314"
+        android:padding="6dp">
+
+        <TextView android:id="@+id/toolBack" android:text="◀" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="#fff"/>
+        <TextView android:id="@+id/toolForward" android:text="▶" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="#fff"/>
+        <TextView android:id="@+id/toolDev" android:text="⚙ Developer" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="@color/paradox_blue" android:background="?attr/selectableItemBackground"/>
+        <TextView android:id="@+id/toolTabs" android:text="⬔" android:padding="12dp" android:layout_width="0dp" android:layout_weight="1" android:gravity="center" android:textColor="#fff"/>
+
+    </LinearLayout>
+</LinearLayout>

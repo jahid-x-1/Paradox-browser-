@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.ParadoxGaming" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/paradox_blue</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/paradox_green</item>
+        <item name="colorSurface">@color/paradox_card</item>
+        <item name="android:colorBackground">@color/paradox_bg</item>
+        <item name="android:textColorPrimary">@color/paradox_text</item>
+        <item name="android:textColorSecondary">@color/paradox_text_dim</item>
+        <item name="android:statusBarColor">@color/paradox_bg</item>
+        <item name="android:navigationBarColor">@color/paradox_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="ParadoxSectionTitle">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/paradox_text_dim</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.18</item>
+    </style>
+
+    <style name="ParadoxMetricLabel">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textColor">@color/paradox_text_dim</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.14</item>
+    </style>
+
+    <style name="ParadoxMetricValue">
+        <item name="android:textSize">19sp</item>
+        <item name="android:textColor">@color/paradox_text</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="ParadoxBody">
+        <item name="android:textSize">12sp</item>
+        <item name="android:textColor">@color/paradox_text_dim</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+</resources>
