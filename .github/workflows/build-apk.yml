@@ -1,0 +1,108 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - 'arena/**'
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: gaming-tools
+            label: Paradox Gaming Tools
+            artifact: paradox-gaming-tools
+            apk: gaming-tools/app/build/outputs/apk/debug/app-debug.apk
+          - project: paradox-browser
+            label: Paradox Browser
+            artifact: paradox-browser
+            apk: paradox-browser/app/build/outputs/apk/debug/app-debug.apk
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK platform and build tools
+        run: |
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
+      - name: Set up Gradle 8.2.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.2.1'
+
+      - name: Build debug APK
+        working-directory: ${{ matrix.project }}
+        run: gradle assembleDebug --no-daemon --stacktrace
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.apk }}
+          if-no-files-found: error
+          retention-days: 30
+
+  publish:
+    name: Publish APKs to release
+    needs: build
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all APK artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: apks
+
+      - name: Rename APKs
+        run: |
+          mkdir -p out
+          cp apks/paradox-gaming-tools/app-debug.apk out/Paradox-Gaming-Tools-1.0.0-debug.apk
+          cp apks/paradox-browser/app-debug.apk out/Paradox-Browser-1.0.0-debug.apk
+          ls -lh out
+
+      - name: Publish rolling release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: Latest APK builds
+          body: |
+            Automated debug builds from `${{ github.ref_name }}` at `${{ github.sha }}`.
+
+            * **Paradox-Gaming-Tools-1.0.0-debug.apk** — real lag reduction (Linear JAH-5)
+            * **Paradox-Browser-1.0.0-debug.apk** — hardened WebView browser
+
+            Debug builds are signed with the standard debug keystore, so Android may warn
+            that the app is from an unknown source. Enable "Install unknown apps" for your
+            file manager or browser to install.
+          files: out/*.apk
+          prerelease: true
+          make_latest: false
