@@ -110,6 +110,29 @@ jobs:
           tail -n 25 build.log
           exit $STATUS
 
+      - name: Verify the APK
+        run: |
+          set -euo pipefail
+          APK="${{ matrix.apk }}"
+          ls -l "$APK"
+          echo "--- contents ---"
+          unzip -l "$APK" | grep -E "AndroidManifest.xml|classes.*dex|resources.arsc" || true
+          BT="$(ls -d "$ANDROID_HOME"/build-tools/* 2>/dev/null | sort -V | tail -1 || true)"
+          if [ -n "${BT:-}" ] && [ -x "$BT/apksigner" ]; then
+            echo "--- signature ---"
+            "$BT/apksigner" verify --print-certs "$APK" | head -n 4 | while IFS= read -r l; do
+              echo "::notice title=signed::$l"
+            done
+          fi
+          if [ -n "${BT:-}" ] && [ -x "$BT/aapt2" ]; then
+            echo "--- badging ---"
+            "$BT/aapt2" dump badging "$APK" 2>/dev/null | head -n 3 | while IFS= read -r l; do
+              echo "::notice title=badging::$l"
+            done
+          fi
+          echo "--- checksum ---"
+          sha256sum "$APK" | tee "$(basename "$APK").sha256"
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
@@ -134,7 +157,10 @@ jobs:
           mkdir -p out
           cp apks/paradox-gaming-tools/app-debug.apk out/Paradox-Gaming-Tools-1.0.0-debug.apk
           cp apks/paradox-browser/app-debug.apk out/Paradox-Browser-1.0.0-debug.apk
-          ls -lh out
+          cd out
+          sha256sum *.apk > SHA256SUMS.txt
+          cat SHA256SUMS.txt
+          ls -lh
 
       - name: Publish rolling release
         uses: softprops/action-gh-release@v2
@@ -147,9 +173,13 @@ jobs:
             * **Paradox-Gaming-Tools-1.0.0-debug.apk** — real lag reduction (Linear JAH-5)
             * **Paradox-Browser-1.0.0-debug.apk** — hardened WebView browser
 
-            Debug builds are signed with the standard debug keystore, so Android will warn
-            that the app comes from an unknown source. Allow "Install unknown apps" for your
-            file manager or browser to install it.
-          files: out/*.apk
+            Both APKs are signed with the standard Android debug keystore, so the phone
+            will warn about an unknown source. On Android 8+ allow **Install unknown apps**
+            for your browser or file manager, then tap the downloaded file.
+
+            `SHA256SUMS.txt` holds the checksums if you want to verify the download.
+          files: |
+            out/*.apk
+            out/SHA256SUMS.txt
           prerelease: true
           make_latest: false
