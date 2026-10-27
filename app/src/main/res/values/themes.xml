@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Paradox" parent="Theme.Material3.DayNight">
+        <item name="colorPrimary">#1A1C1E</item>
+        <item name="colorSecondary">#3A7BFF</item>
+        <item name="android:statusBarColor">@color/black</item>
+    </style>
+</resources>
