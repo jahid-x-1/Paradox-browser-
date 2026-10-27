@@ -325,7 +325,7 @@ class MainActivity : AppCompatActivity() {
                 val query = input.text.toString().trim()
                 if (query.isNotEmpty()) binding.webView.findAllAsync(query)
             }
-            .setNegativeButton(android.R.string.cancel) null
+            .setNegativeButton(android.R.string.cancel, null)
             .create()
 
         binding.webView.setFindListener { activeMatch, totalMatches, _ ->

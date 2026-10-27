@@ -5,6 +5,7 @@ import android.app.usage.StorageStatsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.os.Process
@@ -56,6 +57,18 @@ class AppCacheScanner(context: Context) {
             appContext.startActivity(intent)
         } catch (e: Exception) {
             // Some ROMs hide this screen; the user can reach it from system Settings.
+        }
+    }
+
+    /** Opens the system App info screen, where the user can clear data in two taps. */
+    fun openAppInfo(packageName: String) {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            .setData(Uri.parse("package:$packageName"))
+            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        try {
+            appContext.startActivity(intent)
+        } catch (e: Exception) {
+            // Some heavily modified ROMs hide this screen.
         }
     }
 
