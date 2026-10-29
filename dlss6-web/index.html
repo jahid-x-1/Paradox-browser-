@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DLSS 5 RTX Game Booster</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #05050a; color: #e0e0e0; min-height: 100vh; overflow-x: hidden; }
+        .header { background: linear-gradient(135deg, #0a0a12 0%, #1a1a2e 100%); padding: 16px; border-bottom: 1px solid #333; }
+        .header-content { display: flex; justify-content: space-between; align-items: center; max-width: 500px; margin: 0 auto; }
+        .logo { font-size: 24px; font-weight: 800; color: #00D4FF; letter-spacing: 2px; text-transform: uppercase; }
+        .status-chip { padding: 6px 16px; background: rgba(0, 212, 255, 0.15); border: 1px solid #00D4FF; color: #00D4FF; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .main-content { max-width: 500px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .card { background: #0f0f18; border: 1px solid #2a2a3a; border-radius: 12px; overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #2a2a3a; }
+        .card-header h2 { font-size: 18px; font-weight: 700; color: #fff; }
+        .badge { padding: 4px 12px; background: rgba(255, 255, 255, 0.1); border-radius: 12px; font-size: 11px; font-weight: 600; color: #888; }
+        .preset-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px; }
+        .preset-btn { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 16px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid #333; border-radius: 10px; color: #fff; cursor: pointer; transition: all 0.2s; }
+        .preset-btn:hover { background: rgba(0, 212, 255, 0.15); border-color: #00D4FF; transform: translateY(-2px); }
+        .preset-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+        .preset-desc { font-size: 11px; color: #888; }
+        .custom-slots { padding: 16px; }
+        .custom-slots h3 { font-size: 14px; color: #888; margin-bottom: 12px; }
+        .slot-row { display: flex; gap: 8px; margin-bottom: 12px; }
+        .slot-btn { flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.05); border: 1px solid #333; border-radius: 8px; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .slot-btn:hover { background: rgba(255, 215, 0, 0.15); border-color: #FFD700; }
+        .save-row { display: flex; gap: 8px; }
+        .save-btn { flex: 1; padding: 8px; background: rgba(0, 212, 255, 0.1); border: 1px solid #00D4FF; border-radius: 8px; color: #00D4FF; font-size: 11px; font-weight: 600; cursor: pointer; }
+        .save-btn:hover { background: rgba(0, 212, 255, 0.25); }
+        .slider-grid { padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+        .slider-item { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .slider-label { font-size: 13px; color: #ccc; min-width: 120px; }
+        .slider-value { font-size: 12px; color: #00D4FF; font-weight: 600; min-width: 35px; text-align: right; }
+        .slider-range { flex: 1; height: 6px; border-radius: 3px; background: #333; outline: none; -webkit-appearance: none; }
+        .slider-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #00D4FF; cursor: pointer; box-shadow: 0 0 10px rgba(0, 212, 255, 0.5); }
+        .hud-controls { padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .toggle-group { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #2a2a3a; }
+        .toggle-label { font-size: 14px; color: #ccc; }
+        .toggle-btn { padding: 6px 16px; background: #333; border: 1px solid #555; border-radius: 20px; color: #fff; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .toggle-btn:hover { border-color: #00D4FF; }
+        .color-picker-group { display: flex; flex-direction: column; gap: 10px; padding: 12px 0; border-bottom: 1px solid #2a2a3a; }
+        .color-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .color-btn { width: 32px; height: 32px; border-radius: 50%; border: 2px solid transparent; cursor: pointer; }
+        .color-btn:hover { transform: scale(1.1); }
+        .aura-preview { margin-top: 16px; padding: 20px; background: rgba(0, 0, 0, 0.3); border-radius: 12px; text-align: center; display: none; }
+        .aura-glow { width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 12px; background: #00D4FF; box-shadow: 0 0 30px #00D4FF; }
+        .hud-preview { font-size: 12px; font-weight: 700; color: #00D4FF; letter-spacing: 1px; text-shadow: 0 0 10px #00D4FF; }
+        .apply-bar { padding: 16px; background: rgba(0, 212, 255, 0.05); border-top: 1px solid #2a2a3a; display: flex; justify-content: space-between; align-items: center; }
+        .apply-btn { padding: 10px 24px; background: linear-gradient(135deg, #00D4FF 0%, #007A99 100%); border: none; border-radius: 8px; color: #000; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 0 20px rgba(0, 212, 255, 0.3); }
+        .apply-btn:hover { box-shadow: 0 0 30px rgba(0, 212, 255, 0.5); transform: translateY(-1px); }
+        .apply-status { font-size: 12px; color: #888; }
+        .boost-card { background: linear-gradient(135deg, #1a0a2e 0%, #0f0f18 100%); border-color: #3a1a5a; }
+        .boost-controls { display: flex; gap: 10px; padding: 16px; flex-wrap: wrap; }
+        .boost-btn { flex: 1; min-width: 120px; padding: 14px; background: rgba(255, 255, 255, 0.05); border: 1px solid #333; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .boost-btn:hover { background: rgba(255, 68, 68, 0.15); border-color: #FF4444; transform: translateY(-2px); }
+        .boost-btn:nth-child(1):hover { border-color: #00D4FF; background: rgba(0, 212, 255, 0.15); }
+        .telemetry { padding: 0 16px 16px; display: flex; justify-content: space-around; background: rgba(0, 0, 0, 0.2); border-radius: 0 0 12px 12px; }
+        .tel-item { text-align: center; }
+        .tel-label { font-size: 11px; color: #888; display: block; margin-bottom: 4px; }
+        .tel-value { font-size: 16px; font-weight: 700; color: #00FF88; }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.9); color: #fff; padding: 10px 20px; border-radius: 24px; font-size: 13px; font-weight: 600; opacity: 0; transition: opacity 0.3s; z-index: 2000; border: 1px solid #333; }
+        .toast.show { opacity: 1; }
+        .footer { text-align: center; padding: 24px; color: #666; font-size: 12px; border-top: 1px solid #2a2a3a; max-width: 500px; margin: 0 auto; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a12; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00D4FF; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">DLSS 5 RTX</div>
+            <div class="status-chip" id="statusChip">READY</div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <section class="card">
+            <div class="card-header">
+                <h2>Shader Presets</h2>
+                <span class="badge" id="presetBadge">CUSTOM</span>
+            </div>
+            <div class="preset-grid" id="presetGrid"></div>
+            <div class="custom-slots">
+                <h3>Custom Slots</h3>
+                <div class="slot-row">
+                    <button class="slot-btn" onclick="loadCustomSlot(0)">SLOT 1</button>
+                    <button class="slot-btn" onclick="loadCustomSlot(1)">SLOT 2</button>
+                    <button class="slot-btn" onclick="loadCustomSlot(2)">SLOT 3</button>
+                </div>
+                <div class="save-row">
+                    <button class="save-btn" onclick="saveCustomSlot(0)">SAVE S1</button>
+                    <button class="save-btn" onclick="saveCustomSlot(1)">SAVE S2</button>
+                    <button class="save-btn" onclick="saveCustomSlot(2)">SAVE S3</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>DLSS Shader Controls</h2>
+                <span class="badge" id="shaderCountBadge">16</span>
+            </div>
+            <div class="slider-grid" id="sliderGrid"></div>
+        </section>
+
+        <section class="card">
+            <div class="card-header">
+                <h2>HUD & Aura</h2>
+                <span class="badge" id="hudBadge">OFF</span>
+            </div>
+            <div class="hud-controls">
+                <div class="toggle-group">
+                    <label class="toggle-label">Floating HUD Overlay</label>
+                    <button class="toggle-btn" id="hudToggle" onclick="toggleHUD()">ENABLE</button>
+                </div>
+                <div class="toggle-group">
+                    <label class="toggle-label">Aura Glow Effect</label>
+                    <button class="toggle-btn" id="auraToggle" onclick="toggleAura()">ENABLE</button>
+                </div>
+                <div class="color-picker-group">
+                    <label class="toggle-label">Aura Color</label>
+                    <div class="color-row">
+                        <button class="color-btn" onclick="setAuraColor('#00D4FF')" style="background:#00D4FF"></button>
+                        <button class="color-btn" onclick="setAuraColor('#00FF88')" style="background:#00FF88"></button>
+                        <button class="color-btn" onclick="setAuraColor('#FF4444')" style="background:#FF4444"></button>
+                        <button class="color-btn" onclick="setAuraColor('#FF00FF')" style="background:#FF00FF"></button>
+                        <button class="color-btn" onclick="setAuraColor('#FFFF00')" style="background:#FFFF00"></button>
+                        <button class="color-btn" onclick="setAuraColor('#FFFFFF')" style="background:#FFFFFF"></button>
+                    </div>
+                </div>
+                <div class="aura-preview" id="auraPreview">
+                    <div class="aura-glow"></div>
+                    <div class="hud-preview">DLSS 5 • RTX 5060</div>
+                </div>
+            </div>
+            <div class="apply-bar">
+                <button class="apply-btn" onclick="applyToGame()">APPLY TO GAME</button>
+                <span class="apply-status" id="applyStatus">Ready</span>
+            </div>
+        </section>
+
+        <section class="card boost-card">
+            <div class="card-header">
+                <h2>Game Booster</h2>
+                <span class="badge" id="boostBadge">OPTIMIZED</span>
+            </div>
+            <div class="boost-controls">
+                <button class="boost-btn" onclick="boostRAM()">BOOST RAM</button>
+                <button class="boost-btn" onclick="launchGameSelector()">LAUNCH GAME</button>
+                <button class="boost-btn" onclick="openOverlaySettings()">OVERLAY SETTINGS</button>
+            </div>
+            <div class="telemetry" id="telemetry">
+                <div class="tel-item"><span class="tel-label">FPS</span><span class="tel-value" id="telFPS">--</span></div>
+                <div class="tel-item"><span class="tel-label">GPU</span><span class="tel-value" id="telGPU">--</span></div>
+                <div class="tel-item"><span class="tel-label">RAM</span><span class="tel-value" id="telRAM">--</span></div>
+                <div class="tel-item"><span class="tel-label">TEMP</span><span class="tel-value" id="telTEMP">--</span></div>
+            </div>
+        </section>
+    </div>
+
+    <div class="footer">
+        <div>DLSS 5 RTX Game Booster v2.0.0</div>
+        <div>com.paradox.dlssbooster</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        window.onerror = function(msg, url, line) {
+            console.log('JS Error:', msg, 'at', url, ':', line);
+            return true;
+        };
+
+        const DLSS_PRESETS = {
+            PERFORMANCE: { name: "Performance", desc: "Max FPS", values: [0.7,0.6,0.5,0.6,0.5,0.4,0.5,0.6,0.4,0.3,0.5,0.6,0.4,0.5,0.3,0.4], color: "#00FF88" },
+            BALANCED: { name: "Balanced", desc: "Good FPS & quality", values: [0.8,0.7,0.7,0.8,0.7,0.6,0.7,0.8,0.6,0.5,0.7,0.8,0.6,0.7,0.5,0.6], color: "#FFFF00" },
+            QUALITY: { name: "Quality", desc: "High visual fidelity", values: [0.9,0.8,0.8,0.9,0.8,0.7,0.8,0.9,0.8,0.7,0.8,0.9,0.8,0.9,0.7,0.8], color: "#00D4FF" },
+            ULTRA: { name: "Ultra", desc: "Maximum visual quality", values: [1.0,0.9,0.9,1.0,0.9,0.8,0.9,1.0,0.9,0.8,0.9,1.0,0.9,1.0,0.8,0.9], color: "#FF00FF" },
+            DLSS5: { name: "DLSS 5", desc: "Neural rendering enabled", values: [1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0], color: "#00FF88" }
+        };
+
+        const SHADER_LABELS = ["Neural Scale","Temporal AA","Ray Trace","Reflection","Refraction","Ambient Occ.","Bloom","Motion Blur","Color Grade","Sharpening","Contrast","Saturation","Exposure","Gamma","Dithering","Film Grain"];
+
+        let currentPreset = "CUSTOM";
+        let currentValues = [0.8,0.7,0.7,0.8,0.7,0.6,0.7,0.8,0.6,0.5,0.7,0.8,0.6,0.7,0.5,0.6];
+        let customSlots = [
+            [0.8,0.7,0.7,0.8,0.7,0.6,0.7,0.8,0.6,0.5,0.7,0.8,0.6,0.7,0.5,0.6],
+            [0.9,0.8,0.8,0.9,0.8,0.7,0.8,0.9,0.8,0.7,0.8,0.9,0.8,0.9,0.7,0.8],
+            [1.0,0.9,0.9,1.0,0.9,0.8,0.9,1.0,0.9,0.8,0.9,1.0,0.9,1.0,0.8,0.9]
+        ];
+        let hudEnabled = false;
+        let auraEnabled = false;
+        let auraColor = "#00D4FF";
+
+        function initPresets() {
+            const grid = document.getElementById('presetGrid');
+            const names = Object.keys(DLSS_PRESETS);
+            names.forEach(key => {
+                const p = DLSS_PRESETS[key];
+                const btn = document.createElement('button');
+                btn.className = 'preset-btn';
+                btn.style.borderLeft = '4px solid ' + p.color;
+                btn.onclick = () => applyPreset(key);
+                btn.innerHTML = '<div class="preset-name">' + p.name + '</div><div class="preset-desc">' + p.desc + '</div>';
+                grid.appendChild(btn);
+            });
+        }
+
+        function applyPreset(key) {
+            if (key === 'CUSTOM') {
+                currentPreset = 'CUSTOM';
+                document.getElementById('presetBadge').textContent = 'CUSTOM';
+                document.getElementById('presetBadge').style.background = '#666';
+                return;
+            }
+            const p = DLSS_PRESETS[key];
+            currentValues = [...p.values];
+            currentPreset = key;
+            document.getElementById('presetBadge').textContent = key;
+            document.getElementById('presetBadge').style.background = p.color;
+            initSliders();
+            nativeCall('__DLSS_APPLY_SHADER__', JSON.stringify(currentValues));
+            showToast('Applied ' + p.name + ' preset');
+        }
+
+        function initSliders() {
+            const grid = document.getElementById('sliderGrid');
+            grid.innerHTML = '';
+            SHADER_LABELS.forEach((label, i) => {
+                const container = document.createElement('div');
+                container.className = 'slider-item';
+                const labelDiv = document.createElement('div');
+                labelDiv.className = 'slider-label';
+                labelDiv.textContent = label;
+                const valueDiv = document.createElement('div');
+                valueDiv.className = 'slider-value';
+                valueDiv.textContent = Math.round(currentValues[i] * 100) + '%';
+                valueDiv.id = 'val' + i;
+                const slider = document.createElement('input');
+                slider.type = 'range';
+                slider.min = '0';
+                slider.max = '100';
+                slider.value = Math.round(currentValues[i] * 100);
+                slider.className = 'slider-range';
+                slider.oninput = (e) => {
+                    const v = parseInt(e.target.value) / 100;
+                    currentValues[i] = v;
+                    valueDiv.textContent = e.target.value + '%';
+                    document.getElementById('presetBadge').textContent = 'CUSTOM';
+                    document.getElementById('presetBadge').style.background = '#666';
+                    currentPreset = 'CUSTOM';
+                };
+                container.appendChild(labelDiv);
+                container.appendChild(valueDiv);
+                container.appendChild(slider);
+                grid.appendChild(container);
+            });
+        }
+
+        function loadCustomSlot(slot) {
+            currentValues = [...customSlots[slot]];
+            initSliders();
+            document.getElementById('presetBadge').textContent = 'SLOT ' + (slot + 1);
+            document.getElementById('presetBadge').style.background = '#FFD700';
+            currentPreset = 'SLOT ' + (slot + 1);
+            nativeCall('__DLSS_APPLY_SHADER__', JSON.stringify(currentValues));
+            showToast('Loaded Custom Slot ' + (slot + 1));
+        }
+
+        function saveCustomSlot(slot) {
+            customSlots[slot] = [...currentValues];
+            showToast('Saved to Custom Slot ' + (slot + 1));
+        }
+
+        function toggleHUD() {
+            hudEnabled = !hudEnabled;
+            const btn = document.getElementById('hudToggle');
+            const badge = document.getElementById('hudBadge');
+            if (hudEnabled) {
+                btn.textContent = 'DISABLE';
+                btn.style.background = '#00D4FF';
+                badge.textContent = 'ON';
+                badge.style.background = '#00D4FF';
+                nativeCall('__DLSS_OVERLAY_ON__', '1');
+                showToast('Floating HUD Enabled');
+            } else {
+                btn.textContent = 'ENABLE';
+                btn.style.background = '#666';
+                badge.textContent = 'OFF';
+                badge.style.background = '#666';
+                nativeCall('__DLSS_OVERLAY_OFF__', '');
+                showToast('Floating HUD Disabled');
+            }
+            updateAuraPreview();
+        }
+
+        function toggleAura() {
+            auraEnabled = !auraEnabled;
+            const btn = document.getElementById('auraToggle');
+            const badge = document.getElementById('hudBadge');
+            if (auraEnabled) {
+                btn.textContent = 'DISABLE';
+                btn.style.background = '#FF00FF';
+                badge.textContent = 'ON';
+                badge.style.background = '#FF00FF';
+                nativeCall('__DLSS_OVERLAY_ON__', '2');
+                showToast('Aura Enabled');
+            } else {
+                btn.textContent = 'ENABLE';
+                btn.style.background = '#666';
+                badge.textContent = 'OFF';
+                badge.style.background = '#666';
+                nativeCall('__DLSS_OVERLAY_OFF__', '');
+                showToast('Aura Disabled');
+            }
+            updateAuraPreview();
+        }
+
+        function setAuraColor(color) {
+            auraColor = color;
+            updateAuraPreview();
+            document.querySelectorAll('.color-btn').forEach(b => b.style.border = '2px solid transparent');
+            if (event && event.target) event.target.style.border = '2px solid white';
+            nativeCall('__DLSS_APPLY_SHADER__', JSON.stringify({ auraColor: color }));
+            showToast('Aura color set');
+        }
+
+        function updateAuraPreview() {
+            const preview = document.getElementById('auraPreview');
+            const glow = document.querySelector('.aura-glow');
+            const hud = document.querySelector('.hud-preview');
+            if (hudEnabled || auraEnabled) {
+                preview.style.display = 'block';
+                if (glow) { glow.style.boxShadow = '0 0 30px ' + auraColor + ', 0 0 60px ' + auraColor; glow.style.background = auraColor; }
+                if (hud) { hud.style.color = auraColor; hud.style.textShadow = '0 0 10px ' + auraColor; }
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        function applyToGame() {
+            const shaderData = { values: currentValues, preset: currentPreset, hud: hudEnabled, aura: auraEnabled, auraColor: auraColor };
+            nativeCall('__DLSS_APPLY_SHADER__', JSON.stringify(shaderData));
+            const status = document.getElementById('applyStatus');
+            status.textContent = 'Applied to Game';
+            status.style.color = '#00FF88';
+            showToast('Shader + HUD + Aura applied to game');
+            setTimeout(() => { status.textContent = 'Ready'; status.style.color = '#888'; }, 2000);
+        }
+
+        function nativeCall(cmd, payload = "") {
+            try {
+                const result = prompt(cmd, payload);
+                console.log('Native call:', cmd, '->', result);
+                return result;
+            } catch (e) {
+                console.log('Native bridge error:', e);
+                return null;
+            }
+        }
+
+        const GAME_PACKAGES = [
+            { name: "Free Fire", pkg: "com.dts.freefireth" },
+            { name: "Free Fire MAX", pkg: "com.dts.freefiremax" },
+            { name: "PUBG Mobile", pkg: "com.tencent.ig" },
+            { name: "BGMI", pkg: "com.pubg.imobile" },
+            { name: "Call of Duty Mobile", pkg: "com.activision.callofduty.shooter" },
+            { name: "Mobile Legends", pkg: "com.mobile.legends" }
+        ];
+
+        function boostRAM() {
+            const btn = document.querySelector('.boost-btn:nth-child(1)');
+            const originalText = btn.textContent;
+            btn.textContent = 'BOOSTING...';
+            btn.style.background = '#00D4FF';
+            nativeCall('__DLSS_BOOST__', '');
+            setTimeout(() => { btn.textContent = originalText; btn.style.background = '#FF4444'; showToast('RAM Optimized'); }, 1000);
+        }
+
+        function launchGameSelector() {
+            const container = document.createElement('div');
+            container.className = 'game-selector-modal';
+            container.innerHTML = '<div class="modal-content"><h3>Select Game to Launch</h3><div class="game-list">' + GAME_PACKAGES.map(g => '<button class="game-btn" onclick="launchGame(\'' + g.pkg + '\', this)">' + g.name + '</button>').join('') + '</div><button class="close-btn" onclick="this.closest(\'.game-selector-modal\').remove()">CLOSE</button></div>';
+            document.body.appendChild(container);
+        }
+
+        function launchGame(pkg, btn) {
+            if (!btn) return;
+            const originalText = btn.textContent;
+            btn.textContent = 'LAUNCHING...';
+            btn.style.background = '#00D4FF';
+            nativeCall('__DLSS_LAUNCH__', pkg);
+            setTimeout(() => { btn.textContent = originalText; btn.style.background = '#00D4FF'; document.querySelector('.game-selector-modal')?.remove(); showToast('Game Launching: ' + pkg); }, 1000);
+        }
+
+        function openOverlaySettings() {
+            nativeCall('__DLSS_OVERLAY_PERM__', '');
+            showToast('Opening Overlay Settings');
+        }
+
+        function updateTelemetry() {
+            const fpsElement = document.getElementById('telFPS');
+            const gpuElement = document.getElementById('telGPU');
+            const ramElement = document.getElementById('telRAM');
+            const tempElement = document.getElementById('telTEMP');
+            if (fpsElement) fpsElement.textContent = Math.max(30, 60 + Math.floor(Math.random() * 5) - 2);
+            if (gpuElement) gpuElement.textContent = Math.floor(70 + Math.random() * 20) + '%';
+            if (ramElement) ramElement.textContent = Math.floor(3800 + Math.random() * 500) + ' MB';
+            if (tempElement) tempElement.textContent = Math.floor(42 + Math.random() * 8) + '\u00B0C';
+        }
+
+        function showToast(msg) {
+            let toast = document.getElementById('toast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'toast';
+                toast.className = 'toast';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            toast.className = 'toast show';
+            setTimeout(() => { toast.className = 'toast'; }, 2000);
+        }
+
+        window.addEventListener('DOMContentLoaded', function() {
+            initPresets();
+            initSliders();
+            setInterval(updateTelemetry, 1000);
+            document.getElementById('statusChip').textContent = 'UI LOADED';
+        });
+
+        window.boostRAM = boostRAM;
+        window.launchGameSelector = launchGameSelector;
+        window.openOverlaySettings = openOverlaySettings;
+        window.toggleHUD = toggleHUD;
+        window.toggleAura = toggleAura;
+        window.setAuraColor = setAuraColor;
+        window.applyToGame = applyToGame;
+        window.nativeCall = nativeCall;
+        window.applyPreset = applyPreset;
+        window.loadCustomSlot = loadCustomSlot;
+        window.saveCustomSlot = saveCustomSlot;
+    </script>
+</body>
+</html>
