@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>DLSS 5 RTX Game Booster</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="shaders.js"></script>
+    <script src="app.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">DLSS 5 RTX</div>
+            <div class="status-chip" id="statusChip">READY</div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        
+        <!-- Shader Presets Section -->
+        <section class="card">
+            <div class="card-header">
+                <h2>Shader Presets</h2>
+                <span class="badge" id="presetBadge">CUSTOM</span>
+            </div>
+            <div class="preset-grid" id="presetGrid">
+                <!-- Preset buttons injected by JS -->
+            </div>
+            <div class="custom-slots">
+                <h3>Custom Slots</h3>
+                <div class="slot-row">
+                    <button class="slot-btn" onclick="loadCustomSlot(0)">SLOT 1</button>
+                    <button class="slot-btn" onclick="loadCustomSlot(1)">SLOT 2</button>
+                    <button class="slot-btn" onclick="loadCustomSlot(2)">SLOT 3</button>
+                </div>
+                <div class="save-row">
+                    <button class="save-btn" onclick="saveCustomSlot(0)">SAVE S1</button>
+                    <button class="save-btn" onclick="saveCustomSlot(1)">SAVE S2</button>
+                    <button class="save-btn" onclick="saveCustomSlot(2)">SAVE S3</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shader Sliders Section -->
+        <section class="card">
+            <div class="card-header">
+                <h2>DLSS Shader Controls</h2>
+                <span class="badge" id="shaderCountBadge">16</span>
+            </div>
+            <div class="slider-grid" id="sliderGrid">
+                <!-- Slider controls injected by JS -->
+            </div>
+        </section>
+
+        <!-- HUD & Aura Section -->
+        <section class="card">
+            <div class="card-header">
+                <h2>HUD & Aura</h2>
+                <span class="badge" id="hudBadge">OFF</span>
+            </div>
+            <div class="hud-controls">
+                <div class="toggle-group">
+                    <label class="toggle-label">Floating HUD Overlay</label>
+                    <button class="toggle-btn" id="hudToggle" onclick="toggleHUD()">ENABLE</button>
+                </div>
+                <div class="toggle-group">
+                    <label class="toggle-label">Aura Glow Effect</label>
+                    <button class="toggle-btn" id="auraToggle" onclick="toggleAura()">ENABLE</button>
+                </div>
+                <div class="color-picker-group">
+                    <label class="toggle-label">Aura Color</label>
+                    <div class="color-row">
+                        <button class="color-btn" onclick="setAuraColor('#00D4FF')">RTX Blue</button>
+                        <button class="color-btn" onclick="setAuraColor('#00FF88')">Neon Green</button>
+                        <button class="color-btn" onclick="setAuraColor('#FF4444')">Alert Red</button>
+                        <button class="color-btn" onclick="setAuraColor('#FF00FF')">Magenta</button>
+                        <button class="color-btn" onclick="setAuraColor('#FFFF00')">Yellow</button>
+                        <button class="color-btn" onclick="setAuraColor('#FFFFFF')">White</button>
+                    </div>
+                </div>
+                <div class="aura-preview" id="auraPreview">
+                    <div class="aura-glow"></div>
+                    <div class="hud-preview">DLSS 5 • RTX 5060</div>
+                </div>
+            </div>
+            <div class="apply-bar" id="applyBar">
+                <button class="apply-btn" onclick="applyToGame()">APPLY TO GAME</button>
+                <span class="apply-status" id="applyStatus">Ready</span>
+            </div>
+        </section>
+
+        <!-- Game Boost Section -->
+        <section class="card boost-card">
+            <div class="card-header">
+                <h2>Game Booster</h2>
+                <span class="badge" id="boostBadge">OPTIMIZED</span>
+            </div>
+            <div class="boost-controls">
+                <button class="boost-btn" onclick="boostRAM()">BOOST RAM</button>
+                <button class="boost-btn" onclick="launchGameSelector()">LAUNCH GAME</button>
+                <button class="boost-btn" onclick="openOverlaySettings()">OVERLAY SETTINGS</button>
+            </div>
+            <div class="telemetry" id="telemetry">
+                <div class="tel-item"><span class="tel-label">FPS</span><span class="tel-value" id="telFPS">--</span></div>
+                <div class="tel-item"><span class="tel-label">GPU</span><span class="tel-value" id="telGPU">--</span></div>
+                <div class="tel-item"><span class="tel-label">RAM</span><span class="tel-value" id="telRAM">--</span></div>
+                <div class="tel-item"><span class="tel-label">TEMP</span><span class="tel-value" id="telTEMP">--</span></div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>DLSS 5 RTX Game Booster v2.0.0</div>
+        <div>com.paradox.dlssbooster</div>
+    </div>
+
+    <script>
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            initPresets();
+            initSliders();
+            updateAuraPreview();
+        });
+    </script>
+</body>
+</html>

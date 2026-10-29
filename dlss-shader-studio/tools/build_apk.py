@@ -1835,5 +1835,6 @@ if __name__ == "__main__":
     web_dir = root / "web"
     repo_root = root.parent
     booster_apk = repo_root / "DLSS5-RTX-Game-Booster.apk"
-    build_apk(web_dir, [booster_apk])
+    studio_apk = repo_root / "DLSS5-RTX-Shader-Studio.apk"
+    build_apk(web_dir, [booster_apk, studio_apk])
     verify_apk_with_androguard(booster_apk)
