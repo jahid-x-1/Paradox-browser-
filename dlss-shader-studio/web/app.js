@@ -24,6 +24,21 @@ function nativeCall(cmd, payload = "") {
     }
 }
 
+// Check Brevent status
+function checkBrevent() {
+    const result = nativeCall("__DLSS_BREVENT__", "");
+    const chip = document.getElementById("statusChip");
+    if (result === "BREVENT_ACTIVE") {
+        chip.textContent = "BREVENT ACTIVE";
+        chip.className = "status-chip brevent-active";
+        showToast("Brevent ADB permission active - app will stay alive!");
+    } else {
+        chip.textContent = "BREVENT NOT FOUND";
+        chip.className = "status-chip brevent-inactive";
+        showToast("Brevent not active. Grant ADB permission via Brevent.");
+    }
+}
+
 // Initialize app
 function initApp() {
     console.log("DLSS 5 RTX Game Booster initialized");
