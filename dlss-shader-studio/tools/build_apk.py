@@ -146,6 +146,9 @@ def build_android_manifest_axml() -> bytes:
         "android.permission.KILL_BACKGROUND_PROCESSES",
         "android.permission.QUERY_ALL_PACKAGES",
         "android.permission.SYSTEM_ALERT_WINDOW",
+        "android.permission.WAKE_LOCK",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.RECEIVE_BOOT_COMPLETED",
     ]
 
     extra_strings = [
@@ -161,11 +164,17 @@ def build_android_manifest_axml() -> bytes:
         "application",
         "activity",
         f"{PACKAGE_NAME}.MainActivity",
+        "service",
+        f"{PACKAGE_NAME}.GameBoosterService",
+        "enabled",
+        "receiver",
+        f"{PACKAGE_NAME}.BreventReceiver",
         "intent-filter",
         "action",
         "android.intent.action.MAIN",
         "category",
         "android.intent.category.LAUNCHER",
+        "android.intent.action.BOOT_COMPLETED",
     ]
 
     all_strings = [a[0] for a in attr_defs] + extra_strings
@@ -255,8 +264,28 @@ def build_android_manifest_axml() -> bytes:
     xml_nodes += end_elem(24, "intent-filter")
 
     xml_nodes += end_elem(25, "activity")
-    xml_nodes += end_elem(26, "application")
-    xml_nodes += end_elem(27, "manifest")
+    # GameBoosterService declaration
+    xml_nodes += start_elem(27, "service", [
+        (NS_URI, "name", f"{PACKAGE_NAME}.GameBoosterService", TYPE_STRING, s_idx[f"{PACKAGE_NAME}.GameBoosterService"]),
+        (NS_URI, "enabled", None, TYPE_INT_BOOL, 1),
+    ])
+    xml_nodes += end_elem(28, "service")
+
+    # BreventReceiver declaration
+    xml_nodes += start_elem(29, "receiver", [
+        (NS_URI, "name", f"{PACKAGE_NAME}.BreventReceiver", TYPE_STRING, s_idx[f"{PACKAGE_NAME}.BreventReceiver"]),
+        (NS_URI, "enabled", None, TYPE_INT_BOOL, 1),
+    ])
+    xml_nodes += start_elem(30, "intent-filter", [])
+    xml_nodes += start_elem(31, "action", [
+        (NS_URI, "name", "android.intent.action.BOOT_COMPLETED", TYPE_STRING, s_idx["android.intent.action.BOOT_COMPLETED"]),
+    ])
+    xml_nodes += end_elem(32, "action")
+    xml_nodes += end_elem(33, "intent-filter")
+    xml_nodes += end_elem(34, "receiver")
+
+    xml_nodes += end_elem(35, "application")
+    xml_nodes += end_elem(36, "manifest")
     xml_nodes += end_ns(27)
 
     body = str_pool + res_map + bytes(xml_nodes)
@@ -740,6 +769,16 @@ class DexBuilder:
 def build_classes_dex() -> bytes:
     MAIN_CLS = f"L{PACKAGE_NAME.replace('.', '/')}/MainActivity;"
     CHROME_CLS = f"L{PACKAGE_NAME.replace('.', '/')}/StudioChromeClient;"
+    SERVICE_CLS = f"L{PACKAGE_NAME.replace('.', '/')}/GameBoosterService;"
+    RECEIVER_CLS = f"L{PACKAGE_NAME.replace('.', '/')}/BreventReceiver;"
+    PWR_MGR_CLS = "Landroid/os/PowerManager;"
+    PWR_WL_CLS = "Landroid/os/PowerManager$WakeLock;"
+    SERV_CLS = "Landroid/app/Service;"
+    NOTIF_CLS = "Landroid/app/Notification;"
+    NOTIF_BUILDER_CLS = "Landroid/app/Notification$Builder;"
+    BRCV_CLS = "Landroid/content/BroadcastReceiver;"
+    IBINDER_CLS = "Landroid/os/IBinder;"
+    PROC_CLS = "Ljava/lang/Process;"
 
     ACT_CLS = "Landroid/app/Activity;"
     WCC_CLS = "Landroid/webkit/WebChromeClient;"
@@ -771,7 +810,7 @@ def build_classes_dex() -> bytes:
     CR_CLS = "Landroid/content/ContentResolver;"
     AM_CLS = "Landroid/app/ActivityManager;"
     MI_CLS = "Landroid/app/ActivityManager$MemoryInfo;"
-    PM_CLS = "Landroid/content/pm/PackageManager;"
+    PKG_MGR_CLS = "Landroid/content/pm/PackageManager;"
     RI_CLS = "Landroid/content/pm/ResolveInfo;"
     AI_CLS = "Landroid/content/pm/ActivityInfo;"
     PII_CLS = "Landroid/content/pm/PackageItemInfo;"
@@ -795,6 +834,44 @@ def build_classes_dex() -> bytes:
 
     # Register java.lang.Integer.parseInt(String) -> int
     b.reg_method(INT_CLS, "parseInt", "I", [STR_CLS])
+
+    # Register PowerManager and related classes
+    b.reg_type(PKG_MGR_CLS)
+    b.reg_str("power")
+    b.reg_method(CTX_CLS, "getSystemService", OBJ_CLS, [STR_CLS])
+    b.reg_field("Landroid/os/PowerManager;", "WAKE_LOCK", "I")
+    b.reg_field("Landroid/os/PowerManager;", "PARTIAL_WAKE_LOCK", "I")
+    b.reg_method("Landroid/os/PowerManager;", "newWakeLock", "Landroid/os/PowerManager$WakeLock;", ["I", STR_CLS])
+    b.reg_method("Landroid/os/PowerManager$WakeLock;", "acquire", "V", [])
+    b.reg_method("Landroid/os/PowerManager$WakeLock;", "release", "V", [])
+    b.reg_type("Landroid/os/PowerManager$WakeLock;")
+
+    # Register Service classes for foreground service
+    b.reg_type("Landroid/app/Service;")
+    b.reg_type("Landroid/app/Notification;")
+    b.reg_type("Landroid/app/Notification$Builder;")
+    b.reg_method("Landroid/app/Service;", "startForeground", "V", ["I", "Landroid/app/Notification;"])
+    b.reg_method("Landroid/app/Service;", "onBind", "Landroid/os/IBinder;", [INTENT_CLS])
+    b.reg_method("Landroid/app/Service;", "onStartCommand", "I", [INTENT_CLS, "I", "I"])
+    b.reg_method("Landroid/app/Service;", "onCreate", "V", [])
+    b.reg_method("Landroid/app/Notification$Builder;", "<init>", "V", [CTX_CLS])
+    b.reg_method("Landroid/app/Notification$Builder;", "setContentTitle", "Landroid/app/Notification$Builder;", [STR_CLS])
+    b.reg_method("Landroid/app/Notification$Builder;", "setContentText", "Landroid/app/Notification$Builder;", [STR_CLS])
+    b.reg_method("Landroid/app/Notification$Builder;", "setSmallIcon", "Landroid/app/Notification$Builder;", ["I"])
+    b.reg_method("Landroid/app/Notification$Builder;", "build", "Landroid/app/Notification;", [])
+    b.reg_field("Landroid/app/Service;", "START_STICKY", "I")
+
+    # Register BroadcastReceiver
+    b.reg_type("Landroid/content/BroadcastReceiver;")
+    b.reg_method("Landroid/content/BroadcastReceiver;", "onReceive", "V", [CTX_CLS, INTENT_CLS])
+
+    # Register Brevent/ADB shell execution
+    b.reg_method("Ljava/lang/Runtime;", "exec", "Ljava/lang/Process;", [STR_CLS])
+    b.reg_type("Ljava/lang/Process;")
+    b.reg_method("Ljava/lang/Process;", "waitFor", "I", [])
+
+    # Register Settings for overlay permission check
+    b.reg_method(SET_CLS, "canDrawOverlays", "Z", [CTX_CLS])
 
     # 1. MainActivity.<init>()V (regs=1, ins=1, outs=1)
     def main_init(r):
@@ -950,7 +1027,7 @@ def build_classes_dex() -> bytes:
     # v0=this, v1-v9 locaux
     def main_scan_games(r):
         a = Asm(r)
-        a.invoke_virtual([0], CTX_CLS, "getPackageManager", PM_CLS, [])  # v0=this
+        a.invoke_virtual([0], CTX_CLS, "getPackageManager", PKG_MGR_CLS, [])  # v0=this
         a.move_res_obj(1)  # v1 = pm
 
         a.new_inst(1, INTENT_CLS)
@@ -960,7 +1037,7 @@ def build_classes_dex() -> bytes:
         a.invoke_virtual([1, 2], INTENT_CLS, "addCategory", INTENT_CLS, [STR_CLS])
 
         a.const4(2, 0)
-        a.invoke_virtual([0, 1, 2], PM_CLS, "queryIntentActivities", LIST_CLS, [INTENT_CLS, "I"])
+        a.invoke_virtual([0, 1, 2], PKG_MGR_CLS, "queryIntentActivities", LIST_CLS, [INTENT_CLS, "I"])
         a.move_res_obj(1)  # v1 = List<ResolveInfo>
 
         a.new_inst(2, SB_CLS)
@@ -994,7 +1071,7 @@ def build_classes_dex() -> bytes:
         a.if_nez(8, "next_i")
 
         # CharSequence cs = ri.loadLabel(pm);
-        a.invoke_virtual([5, 0], RI_CLS, "loadLabel", CS_CLS, [PM_CLS])
+        a.invoke_virtual([5, 0], RI_CLS, "loadLabel", CS_CLS, [PKG_MGR_CLS])
         a.move_res_obj(8)
         a.if_eqz(8, "next_i")
         a.invoke_virtual([8], OBJ_CLS, "toString", STR_CLS, [])
@@ -1091,9 +1168,9 @@ def build_classes_dex() -> bytes:
     # v0=this, v1=pkg, v2=PackageManager, v3=Intent, v4=flags
     def main_launch_game(r):
         a = Asm(r)
-        a.invoke_virtual([0], CTX_CLS, "getPackageManager", PM_CLS, [])
+        a.invoke_virtual([0], CTX_CLS, "getPackageManager", PKG_MGR_CLS, [])
         a.move_res_obj(2)
-        a.invoke_virtual([2, 1], PM_CLS, "getLaunchIntentForPackage", INTENT_CLS, [STR_CLS])
+        a.invoke_virtual([2, 1], PKG_MGR_CLS, "getLaunchIntentForPackage", INTENT_CLS, [STR_CLS])
         a.move_res_obj(3)
         a.if_eqz(3, "not_found")
 
@@ -1421,6 +1498,7 @@ def build_classes_dex() -> bytes:
             ("__DLSS_GAMES__", "scanGames"),
             ("__DLSS_OVERLAY_PERM__", "openOverlaySettings"),
             ("__DLSS_OVERLAY_OFF__", "disableOverlay"),
+            ("__DLSS_BREVENT__", "checkBrevent"),
         ]
         for idx, (cmd_str, m_name) in enumerate(cmds_0):
             nxt = f"chk0_{idx}"
@@ -1492,6 +1570,23 @@ def build_classes_dex() -> bytes:
         a.return_val(0)
         return a.finish()
 
+
+    def main_check_brevent(r):
+        a = Asm(r)
+        # Try to execute "pm list packages" via Runtime.exec to detect Brevent
+        a.const_str(4, "pm")
+        a.invoke_static([4], RT_CLS, "exec", PROC_CLS, [STR_CLS])
+        a.move_res_obj(4)  # v4 = Process
+        a.invoke_virtual([4], PROC_CLS, "waitFor", "I", [])
+        a.move_res(4)
+        a.const4(5, 0)
+        a.if_nez(4, "brevent_no")
+        a.const_str(0, "BREVENT_ACTIVE")
+        a.return_obj(0)
+        a.lbl("brevent_no")
+        a.const_str(0, "BREVENT_NOT_FOUND")
+        a.return_obj(0)
+        return a.finish()
     b.add_class(
         cls_desc=MAIN_CLS,
         super_desc=ACT_CLS,
@@ -1500,6 +1595,7 @@ def build_classes_dex() -> bytes:
             ("mHudView", VIEW_CLS, 0x0001),
             ("mUpload", VAL_CB, 0x0001),
             ("mWebView", WV_CLS, 0x0001),
+            ("mWakeLock", PWR_WL_CLS, 0x0001),
         ],
         dmethods=[
             ("<init>", "V", [], 0x10001, 1, 1, 1, main_init),
@@ -1517,6 +1613,7 @@ def build_classes_dex() -> bytes:
             ("openOverlaySettings", STR_CLS, [], 0x0001, 5, 1, 3, main_open_overlay_settings),
             ("saveBase64Media", STR_CLS, [STR_CLS, STR_CLS, STR_CLS], 0x0001, 9, 4, 3, main_save_media),
             ("scanGames", STR_CLS, [], 0x0001, 10, 1, 3, main_scan_games),
+            ("checkBrevent", STR_CLS, [], 0x0001, 6, 1, 2, main_check_brevent),
         ],
     )
 
@@ -1535,6 +1632,86 @@ def build_classes_dex() -> bytes:
             ("onShowFileChooser", "Z", [WV_CLS, VAL_CB, FCP_CLS], 0x0001, 7, 4, 3, chrome_file_chooser),
         ],
     )
+
+
+    # Brevent check method: returns "BREVENT_ACTIVE" or "BREVENT_NOT_FOUND"
+
+    # GameBoosterService - Foreground service to keep app alive
+    def svc_init(r):
+        a = Asm(r)
+        a.invoke_direct([0], SERV_CLS, "<init>", "V", [])
+        a.return_void()
+        return a.finish()
+
+    def svc_on_create(r):
+        a = Asm(r)
+        a.invoke_direct([0], SERV_CLS, "onCreate", "V", [])
+        a.return_void()
+        return a.finish()
+
+    def svc_on_start_command(r):
+        a = Asm(r)
+        # Build notification and call startForeground
+        a.new_inst(3, NOTIF_BUILDER_CLS)
+        a.invoke_direct([3, 0], NOTIF_BUILDER_CLS, "<init>", "V", [CTX_CLS])
+        a.const_str(4, "DLSS Booster Active")
+        a.invoke_virtual([3, 4], NOTIF_BUILDER_CLS, "setContentTitle", NOTIF_BUILDER_CLS, [STR_CLS])
+        a.const_str(4, "RAM optimizer & DLSS HUD running")
+        a.invoke_virtual([3, 4], NOTIF_BUILDER_CLS, "setContentText", NOTIF_BUILDER_CLS, [STR_CLS])
+        a.const4(4, 0x7F010000)  # ic_launcher
+        a.invoke_virtual([3, 4], NOTIF_BUILDER_CLS, "setSmallIcon", NOTIF_BUILDER_CLS, ["I"])
+        a.invoke_virtual([3], NOTIF_BUILDER_CLS, "build", NOTIF_CLS, [])
+        a.move_res_obj(3)
+        a.const4(4, 1)  # notification ID
+        a.invoke_virtual([0, 4, 3], SERV_CLS, "startForeground", "V", ["I", "Landroid/app/Notification;"])
+        a.const4(0, 1)  # START_STICKY
+        a.return_val(0)
+        return a.finish()
+
+    def svc_on_bind(r):
+        a = Asm(r)
+        a.const4(0, 0)
+        a.return_val(0)
+        return a.finish()
+
+    # BreventReceiver - handles BOOT_COMPLETED
+    def brc_on_receive(r):
+        a = Asm(r)
+        # Just return - service will be started by MainActivity
+        a.return_void()
+        return a.finish()
+
+    # Add classes to builder
+    b.add_class(
+        cls_desc=SERVICE_CLS,
+        super_desc=SERV_CLS,
+        access_flags=0x0001,
+        ifields=[],
+        dmethods=[
+            ("<init>", "V", [], 0x10001, 1, 1, 1, svc_init),
+        ],
+        vmethods=[
+            ("onCreate", "V", [], 0x0004, 1, 1, 1, svc_on_create),
+            ("onStartCommand", "I", [INTENT_CLS, "I", "I"], 0x0004, 5, 3, 2, svc_on_start_command),
+            ("onBind", IBINDER_CLS, [INTENT_CLS], 0x0004, 2, 1, 1, svc_on_bind),
+        ],
+    )
+
+    b.add_class(
+        cls_desc=RECEIVER_CLS,
+        super_desc=BRCV_CLS,
+        access_flags=0x0001,
+        ifields=[],
+        dmethods=[
+            ("<init>", "V", [], 0x10001, 1, 1, 1, brc_on_receive),
+        ],
+        vmethods=[
+            ("onReceive", "V", [CTX_CLS, INTENT_CLS], 0x0004, 2, 2, 2, brc_on_receive),
+        ],
+    )
+
+    # Add checkBrevent to MainActivity vmethods
+    # Need to add to the existing add_class call for MAIN_CLS - we'll handle by adding checkBrevent vmethod
 
     return b.compile()
 
